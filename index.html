@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crash Game Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      text-align: center;
+      padding: 50px;
+    }
+
+    h1 {
+      color: #1db954;
+    }
+
+    #multiplier {
+      font-size: 5rem;
+      margin: 30px 0;
+    }
+
+    button {
+      background: #1db954;
+      color: #000;
+      padding: 15px 30px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #444;
+      cursor: not-allowed;
+    }
+
+    .crashed {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🚀 Crash Game Demo</h1>
+  <div id="multiplier">1.00x</div>
+  <button id="startBtn">Start Game</button>
+  <button id="cashoutBtn" disabled>Cash Out</button>
+  <div id="result"></div>
+
+  <script>
+    let multiplier = 1.00;
+    let interval;
+    let crashPoint = 0;
+    let isRunning = false;
+    let hasCashedOut = false;
+
+    const multiplierEl = document.getElementById('multiplier');
+    const resultEl = document.getElementById('result');
+    const startBtn = document.getElementById('startBtn');
+    const cashoutBtn = document.getElementById('cashoutBtn');
+
+    function getCrashPoint() {
+      return +(Math.max(1.00, -Math.log(Math.random()) * 1.7)).toFixed(2);
+    }
+
+    function startGame() {
+      multiplier = 1.00;
+      crashPoint = getCrashPoint();
+      isRunning = true;
+      hasCashedOut = false;
+      multiplierEl.textContent = multiplier.toFixed(2) + 'x';
+      resultEl.textContent = '';
+      startBtn.disabled = true;
+      cashoutBtn.disabled = false;
+
+      interval = setInterval(() => {
+        multiplier += 0.05;
+        multiplierEl.textContent = multiplier.toFixed(2) + 'x';
+        if (multiplier >= crashPoint) {
+          clearInterval(interval);
+          multiplierEl.classList.add("crashed");
+          resultEl.textContent = hasCashedOut ? "✅ You cashed out before the crash!" : "💥 Crashed! You lost.";
+          cashoutBtn.disabled = true;
+          startBtn.disabled = false;
+          isRunning = false;
+        }
+      }, 100);
+    }
+
+    function cashOut() {
+      if (isRunning) {
+        clearInterval(interval);
+        hasCashedOut = true;
+        resultEl.textContent = `✅ You cashed out at ${multiplier.toFixed(2)}x`;
+        cashoutBtn.disabled = true;
+        startBtn.disabled = false;
+        isRunning = false;
+      }
+    }
+
+    startBtn.onclick = startGame;
+    cashoutBtn.onclick = cashOut;
+  </script>
+
+</body>
+</html>
